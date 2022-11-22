@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=ClientProfile
+comment1.params=pUsername\ pPassword\ pIP\ pPort
+comment1.target=ClientProfile(java.lang.String,\ java.lang.String,\ java.lang.String,\ int)
+comment2.params=pUsername\ pIP\ pPort
+comment2.target=ClientProfile(java.lang.String,\ java.lang.String,\ int)
+comment3.params=pPassword
+comment3.target=void\ setPassword(java.lang.String)
+comment4.params=pUsername\ pPassword\ pIP\ pPort
+comment4.target=boolean\ tryLogin(java.lang.String,\ java.lang.String,\ java.lang.String,\ int)
+comment5.params=users\ pUsername
+comment5.target=ClientProfile\ existsUser(java.util.List,\ java.lang.String)
+comment6.params=users\ pIP
+comment6.target=ClientProfile\ existsUserIP(java.util.List,\ java.lang.String)
+comment7.params=usernameOrPassword
+comment7.target=boolean\ checkUserPassRule(java.lang.String)
+comment8.params=
+comment8.target=void\ logOUT()
+numComments=9

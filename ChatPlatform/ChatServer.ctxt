@@ -1,0 +1,25 @@
+#BlueJ class context
+comment0.target=ChatServer
+comment1.params=
+comment1.target=ChatServer()
+comment10.params=enc\ chats\ listName\ ip\ pClientPort\ user
+comment10.target=void\ sendList(EncoderUtil,\ java.util.List,\ java.lang.String,\ java.lang.String,\ int,\ ClientProfile)
+comment11.params=enc\ chat\ ip\ pClientPort\ chatPartner
+comment11.target=void\ sendList(EncoderUtil,\ ChatContent,\ java.lang.String,\ int,\ ClientProfile)
+comment2.params=pClientIP\ pClientPort
+comment2.target=void\ processNewConnection(java.lang.String,\ int)
+comment3.params=pClientIP\ pClientPort\ pMessage
+comment3.target=void\ processMessage(java.lang.String,\ int,\ java.lang.String)
+comment4.params=pClientIP\ pClientPort
+comment4.target=void\ processClosingConnection(java.lang.String,\ int)
+comment5.params=pString\ ip\ pClientPort
+comment5.target=void\ firstAttribute(java.lang.String,\ java.lang.String,\ int)
+comment6.params=enc\ ip\ pClientPort
+comment6.target=void\ accMessage(EncoderUtil,\ java.lang.String,\ int)
+comment7.params=enc\ ip\ pClientPort
+comment7.target=void\ chtMessage(EncoderUtil,\ java.lang.String,\ int)
+comment8.params=enc\ ip\ pClientPort
+comment8.target=void\ usrMessage(EncoderUtil,\ java.lang.String,\ int)
+comment9.params=enc\ users\ listName\ ip\ pClientPort
+comment9.target=void\ sendList(EncoderUtil,\ java.util.List,\ java.lang.String,\ java.lang.String,\ int)
+numComments=12
