@@ -73,7 +73,8 @@ public class ChatServer extends Server
             case "CRT":
                 ClientProfile cp = new ClientProfile(enc.getArgument(1), ip, pClientPort);
                 cp.setPassword(enc.getArgument(2));
-                accountsOnline.add(cp);
+                System.out.println("Adding account!");
+                allAccounts.add(cp);
                 this.send(ip, pClientPort, enc.formatPacket("ACC", "CREATED"));
 
                 //Create Login (Arguments given: 0 - Username, 1 - tag, 2 - password)
@@ -108,6 +109,11 @@ public class ChatServer extends Server
             case "LIN":
                 //Given arguments: 0 - tag, 1 - password
 
+                for (ClientProfile allAccount : allAccounts) {
+                    System.out.println(allAccount.username);
+                    System.out.println(allAccount.password);
+                }
+                System.out.println(enc.getArgument(1));
                 ClientProfile ep = ClientProfile.existsUser(allAccounts, enc.getArgument(0));
                 if(ep.username.equals(""))
                     this.send(ip, pClientPort , enc.formatPacket("ACC", "ERR 121"));
@@ -127,7 +133,7 @@ public class ChatServer extends Server
                     d.logOUT();
                     accountsOnline.remove(d);
                 }
-                this.send(ip, pClientPort, enc.formatPacket("ACC", "LOOGED OUT"));
+                this.send(ip, pClientPort, enc.formatPacket("ACC", "LOGGED OUT"));
                 break;
             default:
                 System.out.println("*Server* corrupted Message: " + ip + ": "  + enc.getOperation());
@@ -138,6 +144,7 @@ public class ChatServer extends Server
     void chtMessage(EncoderUtil enc, String ip, int pClientPort){
         switch(enc.getOperation()){
             case "WRT":
+                System.out.println(enc.getTokens());
                 //Given arguments 0 - receiver, 1 - message
                 final String receiver = enc.getArgument(0);
                 final String message = enc.getArgument(1);

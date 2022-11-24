@@ -88,8 +88,6 @@ public class EncoderUtil {
         return packetID + ";" + operation + ";" + getStamp() + ";" + args;
     }
 
-
-    
     public String formatPacket(final String packetID, final String operation) {
         return packetID + ";" + operation + ";" + getStamp() + ";" ;
     }
