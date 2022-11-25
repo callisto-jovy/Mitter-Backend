@@ -1,63 +1,55 @@
-import java.util.*;
-public class ClientProfile
-{
-    public String username;
-    public String password;
-    public boolean profileComplete = false;
-    public String ipAdress_online;
-    public int port_online;
-    
-    public ClientProfile(String pUsername, String pPassword, String pIP, int pPort){
-        username = pUsername;
-        password = pPassword;
-        ipAdress_online = pIP;
-        port_online = pPort;
-        profileComplete = true;
+import java.util.List;
+
+public class ClientProfile {
+    private final String username, password, tag;
+    private String currentIp;
+    public int portOnline;
+
+
+    public ClientProfile(String username, String password, String tag, String currentIp, int portOnline) {
+        this.username = username;
+        this.password = password;
+        this.tag = tag;
+        this.currentIp = currentIp;
+        this.portOnline = portOnline;
     }
-    
-    public ClientProfile(String pUsername, String pIP, int pPort){
-        username = pUsername;
-        ipAdress_online = pIP;
-        port_online = pPort;
-    }
-    
-    public void setPassword(String pPassword){
-        password = pPassword;
-        profileComplete = true;
-    }
-    
-    public boolean tryLogin(String pUsername, String pPassword, String pIP, int pPort){
-        if(username.equals(pUsername) && password.equals(pPassword))
-        {
-            ipAdress_online = pIP;
-            port_online = pPort;
+
+    public boolean tryLogin(String tag, String password, String pIP, int pPort) {
+        if (tag.equals(tag) && password.equals(password)) {
+            this.currentIp = pIP;
+            this.portOnline = pPort;
             return true;
         }
         return false;
     }
-    
-    public static ClientProfile existsUser(List<ClientProfile> users, String pUsername){
-        for(int i = 0; i < users.size(); i++){
-            if(users.get(i).username.equals(pUsername)) 
-                return users.get(i);
-        }
-        return new ClientProfile("", "", 0);
-    }
-    
-    public static ClientProfile existsUserIP(List<ClientProfile> users, String pIP){
-        for(int i = 0; i < users.size(); i++){
-            if(users.get(i).ipAdress_online.equals(pIP)) 
-                return users.get(i);
-        }
-        return new ClientProfile("", "", 0);
-    }
-    
-    public static boolean checkUserPassRule(String usernameOrPassword){
+    public static boolean checkUserPassRule(String usernameOrPassword) {
         return !usernameOrPassword.contains(" ") && usernameOrPassword.length() <= 10 && usernameOrPassword != "";
     }
-    
-    public void logOUT(){
-        ipAdress_online = "";
-        port_online = 0;
+
+    public String getUsername() {
+        return username;
     }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public String getCurrentIp() {
+        return currentIp;
+    }
+
+    public int getPortOnline() {
+        return portOnline;
+    }
+
+    public void logout() {
+        this.currentIp = "";
+        this.portOnline = -1;
+    }
+
+
 }

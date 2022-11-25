@@ -1,9 +1,9 @@
 #BlueJ class context
-comment0.target=UserHandler
-comment0.text=\n\ Beschreiben\ Sie\ hier\ die\ Klasse\ UserHandler.\n\ \n\ @author\ (Ihr\ Name)\ \n\ @version\ (eine\ Versionsnummer\ oder\ ein\ Datum)\n
+comment0.target=UserManager
+comment0.text=\n\ Beschreiben\ Sie\ hier\ die\ Klasse\ UserManager.\n\ \n\ @author\ (Ihr\ Name)\ \n\ @version\ (eine\ Versionsnummer\ oder\ ein\ Datum)\n
 comment1.params=
-comment1.target=UserHandler()
-comment1.text=\n\ Konstruktor\ f\u00FCr\ Objekte\ der\ Klasse\ UserHandler\n
+comment1.target=UserManager()
+comment1.text=\n\ Konstruktor\ f\u00FCr\ Objekte\ der\ Klasse\ UserManager\n
 comment2.params=y
 comment2.target=int\ beispielMethode(int)
 comment2.text=\n\ Ein\ Beispiel\ einer\ Methode\ -\ ersetzen\ Sie\ diesen\ Kommentar\ mit\ Ihrem\ eigenen\n\ \n\ @param\ \ y\ \ \ \ ein\ Beispielparameter\ f\u00FCr\ eine\ Methode\n\ @return\ \ \ \ \ \ \ \ die\ Summe\ aus\ x\ und\ y\n

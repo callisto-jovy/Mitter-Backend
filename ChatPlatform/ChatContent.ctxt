@@ -1,7 +1,7 @@
 #BlueJ class context
-comment0.target=ChatContent
+comment0.target=Chat
 comment1.params=pUser1\ pUser2
-comment1.target=ChatContent(ClientProfile,\ ClientProfile)
+comment1.target=Chat(ClientProfile,\ ClientProfile)
 comment2.params=tryUser1\ tryUser2
 comment2.target=boolean\ hasUsers(java.lang.String,\ java.lang.String)
 comment3.params=tryUser1\ tryUser2

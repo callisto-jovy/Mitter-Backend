@@ -1,7 +1,8 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Arrays;
+
 public class EncoderUtil {
 
     private final String input;
@@ -73,24 +74,33 @@ public class EncoderUtil {
         return this.tokens;
     }
 
-    public static String formatPacket(final EncoderUtil enc, final String packetID, final String operation, final List<String> arguments) {
+    public static String format(final EncoderUtil enc, final String packetID, final String operation, final List<String> arguments) {
         final String args = arguments.stream().map(s -> s.replaceAll(";", "\\;")).collect(Collectors.joining(";"));
         return packetID + ";" + operation + ";" + enc.getStamp() + ";" + args;
     }
 
-     public String formatPacket(final String packetID, final String operation, final List<String> arguments) {
+    public String format(final String packetID, final String operation, final List<String> arguments) {
         final String args = arguments.stream().map(s -> s.replaceAll(";", "\\;")).collect(Collectors.joining(";"));
         return packetID + ";" + operation + ";" + getStamp() + ";" + args;
     }
-    
-      public String formatPacket(final String packetID, final String operation, final String[] arguments) {
+
+    public String format(final String packetID, final String operation, final String... arguments) {
         final String args = Arrays.stream(arguments).map(s -> s.replaceAll(";", "\\;")).collect(Collectors.joining(";"));
         return packetID + ";" + operation + ";" + getStamp() + ";" + args;
     }
 
-    public String formatPacket(final String packetID, final String operation) {
-        return packetID + ";" + operation + ";" + getStamp() + ";" ;
+    public String format(final String packetID, final String operation) {
+        return packetID + ";" + operation + ";" + getStamp() + ";";
     }
 
-    
+    public String format(ErrorType errorType) {
+        return "ERR;" + errorType.getCode() + ";" + getStamp() + ";";
+    }
+
+    public String format(ErrorType errorType, final String[] arguments) {
+        final String args = Arrays.stream(arguments).map(s -> s.replaceAll(";", "\\;")).collect(Collectors.joining(";"));
+        return "ERR;" + errorType.getCode() + ";" + getStamp() + ";" + args;
+    }
+
+
 }
