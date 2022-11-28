@@ -39,6 +39,7 @@ public class AccountHandler implements Constant {
             final String tag = enc.getArgument(0);
             if (USER_HANDLER.isUserOnline(tag, ip, port)) {
                 if (USER_HANDLER.removeOnlineUser(tag)) {
+                    //TODO: Strip old ip
                     sendReturn.accept(enc.format("ACC", "LOGGED OUT"));
                 } else {
                     sendReturn.accept(enc.format(ErrorType.ACCOUNT_NOT_LOGGED_OUT));
@@ -46,9 +47,16 @@ public class AccountHandler implements Constant {
             } else {
                 sendReturn.accept(enc.format(ErrorType.ACCOUNT_NOT_LOGGED_IN));
             }
-
+        } else if (enc.getOperation().equals("PROFILE")) {
+            //Given argument: 0 - Profile picture (base64)
+            final Optional<ClientProfile> optionalClientProfile = USER_HANDLER.getUser(ip, port);
+            if (optionalClientProfile.isPresent()) {
+                final String base64ProfilePicture = enc.getArgument(0);
+                optionalClientProfile.get().setProfilePicture(base64ProfilePicture);
+                sendReturn.accept(enc.format("ACC", "PROFILE SET"));
+            } else {
+                sendReturn.accept(enc.format(ErrorType.ACCOUNT_DOES_NOT_EXIST));
+            }
         }
-
     }
-
 }

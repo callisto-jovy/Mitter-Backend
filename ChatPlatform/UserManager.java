@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class UserManager {
     private List<ClientProfile> profiles;
@@ -10,6 +11,14 @@ public class UserManager {
     public UserManager() {
         this.profiles = new ArrayList<>();
         this.onlineProfiles = new ArrayList<>();
+    }
+
+    public List<String> getProfiles() {
+        return profiles.stream().map(p -> p.getTag()).collect(Collectors.toUnmodifiableList());
+    }
+
+    public List<String> getActiveUsers() {
+        return profiles.stream().map(p -> p.getTag()).collect(Collectors.toUnmodifiableList());
     }
 
     public boolean addOnlineUser(final ClientProfile clientProfile) {

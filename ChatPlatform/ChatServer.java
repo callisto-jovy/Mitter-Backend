@@ -1,7 +1,5 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class ChatServer extends Server implements Constant {
@@ -30,9 +28,7 @@ public class ChatServer extends Server implements Constant {
         if (pMessage.equals(ENDE)) {
             this.closeConnection(pClientIP, pClientPort);   // hier wird die Verbindung beendet. Methode aus der Oberklasse.
         } else {
-            //this.send(pClientIP, pClientPort, pClientIP + " " + pClientPort + ": " + pMessage); // sendet Nachricht an Client
-            //System.out.println(" " + pClientIP + ": " + pMessage); // gibt alles auf der Server-Konsole aus
-            firstAttribute(pMessage, pClientIP, pClientPort);
+            processSendID(pMessage, pClientIP, pClientPort);
         }
 
     }
@@ -43,19 +39,27 @@ public class ChatServer extends Server implements Constant {
         this.send(pClientIP, pClientPort, ENDE);
     }
 
-    void firstAttribute(String pString, String ip, int pClientPort) {
+    void processSendID(String pString, String ip, int port) {
         final EncoderUtil enc = new EncoderUtil(pString);
         System.out.println(enc.getOperation());
 
         switch (enc.getID()) {
             case "ACC":
-                accMessage(enc, ip, pClientPort);
+                AccountHandler.handleAccountMessage(enc, ip, port, s -> send(ip, port, s));
                 break;
             case "CHT":
-                chtMessage(enc, ip, pClientPort);
+                ChatHandler.handleChat(enc, ip, port, (t, m) -> {
+                    //Return to sender
+                    if (t == null) {
+                        send(ip, port, m);
+                    } else {
+                        final Optional<ClientProfile> receiver = USER_HANDLER.getUser(t);
+                        receiver.ifPresent(p -> send(p.getCurrentIp(), p.getPortOnline(), m));
+                    }
+                });
                 break;
             case "USR":
-                usrMessage(enc, ip, pClientPort);
+                UserHandler.handleChat(enc, ip, port, s -> send(ip, port, s));
                 break;
             default:
                 System.out.println("*Server* corrupted Message: " + ip + ": " + pString);
@@ -63,51 +67,5 @@ public class ChatServer extends Server implements Constant {
         }
 
     }
-
-    void accMessage(EncoderUtil enc, String ip, int port) {
-        AccountHandler.handleAccountMessage(enc, ip, port, s -> send(ip, port, s));
-    }
-
-    void chtMessage(EncoderUtil enc, String ip, int pClientPort) {
-        ChatHandler.handleChat(enc, ip, pClientPort, (t, m) -> {
-            //Return to sender
-            if (t == null) {
-                send(ip, pClientPort, m);
-            } else {
-                final Optional<ClientProfile> receiver = USER_HANDLER.getUser(t);
-                receiver.ifPresent(p -> send(p.getCurrentIp(), p.getPortOnline(), m));
-            }
-        });
-
-    }
-
-    void usrMessage(EncoderUtil enc, String ip, int pClientPort) {
-        /*
-        switch (enc.getOperation()) {
-            case "GETALL":
-                sendList(enc, allAccounts, "ALL", ip, pClientPort);
-                break;
-            case "GETONL":
-                sendList(enc, accountsOnline, "ONL", ip, pClientPort);
-                break;
-            case "GETCHT":
-                List<Chat> chats = new ArrayList<>();
-                ClientProfile c = ClientProfile.existsUserIP(allAccounts, ip);
-                if (!c.username.equals("")) {
-                    for (int i = 0; i < allChats.size(); i++) {
-                        if (allChats.get(i).hasUser(c))
-                            chats.add(allChats.get(i));
-                    }
-                }
-                sendList(enc, chats, "CHT", ip, pClientPort, c);
-                break;
-            default:
-                System.out.println("*Server* corrupted Message: " + ip + ": " + enc.getOperation());
-                break;
-        }
-
-         */
-    }
-
 
 }

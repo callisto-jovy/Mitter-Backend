@@ -2,6 +2,7 @@ import java.util.List;
 
 public class ClientProfile {
     private final String username, password, tag;
+    private String profilePicture;
     private String currentIp;
     public int portOnline;
 
@@ -24,6 +25,14 @@ public class ClientProfile {
     }
     public static boolean checkUserPassRule(String usernameOrPassword) {
         return !usernameOrPassword.contains(" ") && usernameOrPassword.length() <= 10 && usernameOrPassword != "";
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
     }
 
     public String getUsername() {

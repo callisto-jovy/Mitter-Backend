@@ -11,4 +11,12 @@ public class ChatMessage {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "sender='" + sender + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }
