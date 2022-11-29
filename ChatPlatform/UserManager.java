@@ -28,11 +28,11 @@ public class UserManager {
     }
 
     public boolean isUserOnline(final String tag, final String ip, int port) {
-        return onlineProfiles.stream().anyMatch(p -> p.getTag().equals(tag) && p.equals(ip) && p.getPortOnline() == port);
+        return onlineProfiles.stream().anyMatch(p -> p.getTag().equals(tag) && p.getCurrentIp().equals(ip) && p.getPortOnline() == port);
     }
 
     public boolean isUserOnline(final String ip, int port) {
-        return onlineProfiles.stream().anyMatch(p -> p.equals(ip) && p.getPortOnline() == port);
+        return onlineProfiles.stream().anyMatch(p -> p.getCurrentIp().equals(ip) && p.getPortOnline() == port);
     }
 
     public boolean isUserOnline(final String tag) {

@@ -1,8 +1,8 @@
 import java.util.List;
 
-public class ClientProfile {
+public class ClientProfile implements Constant {
     private final String username, password, tag;
-    private String profilePicture;
+    private String profilePicture = DEFAULT_PROFILE_PICTURE;
     private String currentIp;
     public int portOnline;
 
