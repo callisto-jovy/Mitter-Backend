@@ -62,7 +62,7 @@ public class ChatHandler implements Constant {
                     final Chat chat = optionalChat.get();
                     //Return messages
                     final EncoderPacket encoderPacket = new EncoderPacket();
-                    encoderPacket.addArgument(chat.messages.stream().map(m -> m.toString()).toList());
+                    encoderPacket.addArgument(chat.messages.stream().map(ChatMessage::toString).toList());
                     receiverMessageConsumer.accept(null, enc.format("CHT", "GET", encoderPacket));
                 } else {
                     //Return nothing, send an empty list
@@ -71,10 +71,9 @@ public class ChatHandler implements Constant {
                     receiverMessageConsumer.accept(null, enc.format("CHT", "GET", encoderPacket));
                 }
             } else {
-                if (!chatPartner.isPresent())
+                if (chatPartner.isEmpty())
                     receiverMessageConsumer.accept(null, enc.format(ErrorType.RECEIVER_NOT_ONLINE));
-                else if (!senderProfile.isPresent())
-                    receiverMessageConsumer.accept(null, enc.format(ErrorType.ACCOUNT_NOT_LOGGED_IN));
+                else receiverMessageConsumer.accept(null, enc.format(ErrorType.ACCOUNT_NOT_LOGGED_IN));
             }
         }
     }

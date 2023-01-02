@@ -22,12 +22,18 @@ public class AccountHandler implements Constant {
         } else if (enc.getOperation().equals("LIN")) {
             //Given arguments: 0 - tag, 1 - password
             final String tag = enc.getArgument(0);
-            final Optional<ClientProfile> profile = USER_HANDLER.getUser(tag);
-            if (profile.isPresent()) {
+            final Optional<ClientProfile> optionalClientProfile = USER_HANDLER.getUser(tag);
+            if (optionalClientProfile.isPresent()) {
                 final String password = enc.getArgument(1);
-                if (profile.get().tryLogin(tag, password, ip, port)) {
-                    USER_HANDLER.addOnlineUser(profile.get());
-                    sendReturn.accept(enc.format("ACC", "COMPLETE"));
+                final ClientProfile clientProfile = optionalClientProfile.get();
+                if (clientProfile.tryLogin(tag, password, ip, port)) {
+                    USER_HANDLER.addOnlineUser(clientProfile);
+                    final EncoderPacket encoderPacket = new EncoderPacket()
+                            .addArgument(clientProfile.getUsername())
+                            .addArgument(clientProfile.getTag())
+                            .addArgument(clientProfile.getProfilePicture());
+
+                    sendReturn.accept(enc.format("ACC", "COMPLETE", encoderPacket));
                 } else {
                     sendReturn.accept(enc.format(ErrorType.ACCOUNT_LOGIN_FAILED));
                 }
