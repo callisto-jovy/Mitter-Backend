@@ -1,11 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class UserManager {
-    private List<ClientProfile> profiles;
-    private List<ClientProfile> onlineProfiles;
+    private final List<ClientProfile> profiles;
+    private final List<ClientProfile> onlineProfiles;
 
 
     public UserManager() {
@@ -13,12 +12,16 @@ public class UserManager {
         this.onlineProfiles = new ArrayList<>();
     }
 
-    public List<String> getProfiles() {
-        return profiles.stream().map(p -> p.getTag()).collect(Collectors.toUnmodifiableList());
+    public List<String> getTags() {
+        return profiles.stream().map(ClientProfile::getTag).toList();
+    }
+
+    public List<ClientProfile> getProfiles() {
+        return profiles;
     }
 
     public List<String> getActiveUsers() {
-        return profiles.stream().map(p -> p.getTag()).collect(Collectors.toUnmodifiableList());
+        return profiles.stream().map(ClientProfile::getTag).toList();
     }
 
     public boolean addOnlineUser(final ClientProfile clientProfile) {
@@ -38,7 +41,6 @@ public class UserManager {
     public boolean isUserOnline(final String tag) {
         return onlineProfiles.stream().anyMatch(p -> p.getTag().equals(tag));
     }
-
 
     public boolean removeOnlineUser(final ClientProfile clientProfile) {
         if (onlineProfiles.contains(clientProfile))
@@ -62,8 +64,10 @@ public class UserManager {
         return profiles.stream().filter(p -> p.getTag().equals(tag)).findFirst();
     }
 
-    public Optional<ClientProfile> getUser(final String ip, int port) {
-        return profiles.stream().filter(p -> p.getCurrentIp().equals(ip) && p.getPortOnline() == port).findFirst();
+    public Optional<ClientProfile> getOnlineUser(final String ip, int port) {
+        return onlineProfiles.stream().filter(p -> p.getCurrentIp().equals(ip) && p.getPortOnline() == port).findFirst();
     }
+
+
 
 }

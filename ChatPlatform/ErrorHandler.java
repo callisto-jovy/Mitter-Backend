@@ -9,7 +9,7 @@ enum ErrorType {
     RECEIVER_NOT_ONLINE(151),
     CHAT_DOES_NOT_EXIST(200);
 
-    private int code;
+    private final int code;
 
 
     ErrorType(final int code) {

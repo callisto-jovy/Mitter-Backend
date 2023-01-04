@@ -27,7 +27,19 @@ public class ChatManager {
         return chat;
     }
 
-    public void appendToChat(final Chat chat, final ClientProfile sender) {
-        //TODO: Append message
+    public void appendChat(final Chat chat) {
+        allChats.add(chat);
+    }
+
+    public List<String> getAllChatPartners(final ClientProfile clientProfile) {
+        return allChats
+                .stream()
+                .filter(chat -> chat.containsUser(clientProfile))
+                .map(chat -> chat.getOtherUser(clientProfile))
+                .toList();
+    }
+
+    public List<Chat> getAllChats() {
+        return allChats;
     }
 }

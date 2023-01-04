@@ -2,7 +2,7 @@ import java.util.List;
 
 public class ClientProfile implements Constant {
     private final String username, password, tag;
-    private String profilePicture = DEFAULT_PROFILE_PICTURE;
+    private String profilePicture = "null";
     private String currentIp;
     public int portOnline;
 
@@ -15,8 +15,15 @@ public class ClientProfile implements Constant {
         this.portOnline = portOnline;
     }
 
+    public ClientProfile(String username, String password, String tag, String profilePicture) {
+        this.username = username;
+        this.password = password;
+        this.tag = tag;
+        this.profilePicture = profilePicture;
+    }
+
     public boolean tryLogin(String tag, String password, String pIP, int pPort) {
-        if (tag.equals(tag) && password.equals(password)) {
+        if (this.tag.equals(tag) && this.password.equals(password)) {
             this.currentIp = pIP;
             this.portOnline = pPort;
             return true;

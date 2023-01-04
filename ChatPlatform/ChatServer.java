@@ -41,19 +41,18 @@ public class ChatServer extends Server implements Constant {
 
     void processSendID(String pString, String ip, int port) {
         final EncoderUtil enc = new EncoderUtil(pString);
-        System.out.println(enc.getOperation());
-
         switch (enc.getID()) {
             case "ACC":
                 AccountHandler.handleAccountMessage(enc, ip, port, s -> send(ip, port, s));
                 break;
             case "CHT":
                 ChatHandler.handleChat(enc, ip, port, (t, m) -> {
+                    System.out.println(m);
                     //Return to sender
                     if (t == null) {
                         send(ip, port, m);
                     } else {
-                        final Optional<ClientProfile> receiver = USER_HANDLER.getUser(t);
+                        final Optional<ClientProfile> receiver = USER_MANAGER.getUser(t);
                         receiver.ifPresent(p -> send(p.getCurrentIp(), p.getPortOnline(), m));
                     }
                 });

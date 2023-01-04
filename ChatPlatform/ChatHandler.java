@@ -6,7 +6,7 @@ public class ChatHandler implements Constant {
 
     public static void handleChat(final EncoderUtil enc, final String ip, final int port, final BiConsumer<String, String> receiverMessageConsumer) {
         //Check whether the sender is even online
-        if (!USER_HANDLER.isUserOnline(ip, port)) {
+        if (!USER_MANAGER.isUserOnline(ip, port)) {
             receiverMessageConsumer.accept(null, enc.format(ErrorType.ACCOUNT_NOT_LOGGED_IN));
             return;
         }
@@ -15,55 +15,57 @@ public class ChatHandler implements Constant {
             final String receiver = enc.getArgument(0);
             final String message = enc.getArgument(1);
 
-            //final boolean targetOnline = USER_HANDLER.isUserOnline(receiver);
-            /*
-            //Receiver is not online, discard
-            if (!targetOnline) {
-                receiverMessageConsumer.accept(null, enc.format(ErrorType.RECEIVER_NOT_ONLINE, new String[]{receiver}));
-                return;
-            }
+            final Optional<ClientProfile> receiverProfileOptional = USER_MANAGER.getUser(receiver);
+            final Optional<ClientProfile> senderProfileOptional = USER_MANAGER.getOnlineUser(ip, port);
 
-             */
+            if (receiverProfileOptional.isPresent() && senderProfileOptional.isPresent()) {
+                final ClientProfile receiverProfile = receiverProfileOptional.get();
+                final ClientProfile senderProfile = senderProfileOptional.get();
 
-            final Optional<ClientProfile> receiverProfile = USER_HANDLER.getUser(receiver);
-            final Optional<ClientProfile> senderProfile = USER_HANDLER.getUser(ip, port);
-            if (receiverProfile.isPresent() && senderProfile.isPresent()) {
-                final Optional<Chat> chat = CHAT_MANAGER.chatBetweenUsersExist(receiverProfile.get(), senderProfile.get());
+                final Optional<Chat> chat = CHAT_MANAGER.chatBetweenUsersExist(receiverProfile, senderProfile);
                 //Append to chat
+                System.out.println("Does chat exist?: " + CHAT_MANAGER.getAllChats().stream().anyMatch(chat1 -> chat1.containsUsers(receiverProfile, senderProfile)));
                 if (chat.isPresent()) {
-                    chat.get().appendMessage(senderProfile.get().getTag(), message);
+                    System.out.println("Message appended!");
+                    chat.get().appendMessage(senderProfile.getTag(), message);
                     //Send to receiver
                 } else {
                     //Open new chat
-                    final Chat newChat = CHAT_MANAGER.addChat(receiverProfile.get(), senderProfile.get());
-                    CHAT_MANAGER.appendToChat(newChat, senderProfile.get());
-                    newChat.appendMessage(senderProfile.get().getTag(), message);
+                    final Chat newChat = CHAT_MANAGER.addChat(receiverProfile, senderProfile);
+                   // CHAT_MANAGER.appendChat(newChat);
+                    newChat.appendMessage(senderProfile.getTag(), message);
                     //Send message to receiver after adding it to the chat.
                 }
                 final EncoderPacket encoderPacket = new EncoderPacket()
                         .addArgument(message)
-                        .addArgument(senderProfile.get().getTag());
+                        .addArgument(senderProfile.getTag());
 
-                receiverMessageConsumer.accept(receiverProfile.get().getTag(), enc.format("CHT", "REC", encoderPacket));
+                receiverMessageConsumer.accept(receiverProfile.getTag(), enc.format("CHT", "REC", encoderPacket));
+                receiverMessageConsumer.accept(null, enc.format("CHT", "SUCCESS"));
             } else {
-                if (!receiverProfile.isPresent())
+                if (receiverProfileOptional.isEmpty())
                     receiverMessageConsumer.accept(null, enc.format(ErrorType.RECEIVER_NOT_ONLINE));
-                else if (!senderProfile.isPresent())
+                else if (senderProfileOptional.isEmpty())
                     receiverMessageConsumer.accept(null, enc.format(ErrorType.ACCOUNT_NOT_LOGGED_IN));
             }
         } else if (enc.getOperation().equals("GET")) {
             //Given arguments: 0 - partner
             final String chatPartnerTag = enc.getArgument(0);
-            final Optional<ClientProfile> chatPartner = USER_HANDLER.getUser(chatPartnerTag);
-            final Optional<ClientProfile> senderProfile = USER_HANDLER.getUser(ip, port);
+            final Optional<ClientProfile> chatPartner = USER_MANAGER.getUser(chatPartnerTag);
+            final Optional<ClientProfile> senderProfile = USER_MANAGER.getOnlineUser(ip, port);
             if (chatPartner.isPresent() && senderProfile.isPresent()) {
                 final Optional<Chat> optionalChat = CHAT_MANAGER.chatBetweenUsersExist(chatPartner.get(), senderProfile.get());
                 if (optionalChat.isPresent()) {
                     final Chat chat = optionalChat.get();
                     //Return messages
-                    final EncoderPacket encoderPacket = new EncoderPacket();
-                    encoderPacket.addArgument(chat.messages.stream().map(ChatMessage::toString).toList());
-                    receiverMessageConsumer.accept(null, enc.format("CHT", "GET", encoderPacket));
+                    //Flood the user with new receives
+                    for (ChatMessage message : chat.messages) {
+                        final EncoderPacket encoderPacket = new EncoderPacket()
+                                .addArgument(message.getMessage())
+                                .addArgument(message.getSender());
+
+                        receiverMessageConsumer.accept(null, enc.format("CHT", "REC", encoderPacket));
+                    }
                 } else {
                     //Return nothing, send an empty list
                     final EncoderPacket encoderPacket = new EncoderPacket();

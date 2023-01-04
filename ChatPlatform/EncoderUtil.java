@@ -1,14 +1,13 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EncoderUtil {
 
-    private final String input;
-    private final List<String> tokens;
     public static final String DELIMITER = ";";
     public static final String ESCAPED_DELIMITER = "\\;";
+    private final String input;
+    private final List<String> tokens;
+
     public EncoderUtil(final String input) {
         this.input = input;
         if (!this.validateInput()) {
@@ -22,12 +21,8 @@ public class EncoderUtil {
             return false;
         } else if (input.startsWith(";")) {
             return false;
-        } else if (input.split(";").length < 3) {
-            return false;
-        }
+        } else return input.split(";").length >= 3;
         //TODO: More checks
-
-        return true;
     }
 
     private List<String> tokenize() {

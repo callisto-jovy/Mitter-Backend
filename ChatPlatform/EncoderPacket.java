@@ -51,6 +51,6 @@ public class EncoderPacket {
 
     @Override
     public String toString() {
-        return arguments.stream().collect(Collectors.joining(EncoderUtil.DELIMITER));
+        return String.join(EncoderUtil.DELIMITER, arguments);
     }
 }

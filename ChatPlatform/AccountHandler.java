@@ -11,27 +11,29 @@ public class AccountHandler implements Constant {
             final String username = enc.getArgument(1);
             final String password = enc.getArgument(2);
 
-            if (USER_HANDLER.doesUserExist(tag)) {
+            if (USER_MANAGER.doesUserExist(tag)) {
                 sendReturn.accept(enc.format(ErrorType.ACCOUNT_TAG_ALREADY_TAKEN));
                 return;
             }
 
             final ClientProfile clientProfile = new ClientProfile(username, password, tag, ip, port);
-            USER_HANDLER.addNewUser(clientProfile);
+            USER_MANAGER.addNewUser(clientProfile);
             sendReturn.accept(enc.format("ACC", "CREATED"));
         } else if (enc.getOperation().equals("LIN")) {
             //Given arguments: 0 - tag, 1 - password
             final String tag = enc.getArgument(0);
-            final Optional<ClientProfile> optionalClientProfile = USER_HANDLER.getUser(tag);
+            final Optional<ClientProfile> optionalClientProfile = USER_MANAGER.getUser(tag);
             if (optionalClientProfile.isPresent()) {
                 final String password = enc.getArgument(1);
                 final ClientProfile clientProfile = optionalClientProfile.get();
                 if (clientProfile.tryLogin(tag, password, ip, port)) {
-                    USER_HANDLER.addOnlineUser(clientProfile);
+                    USER_MANAGER.addOnlineUser(clientProfile);
                     final EncoderPacket encoderPacket = new EncoderPacket()
                             .addArgument(clientProfile.getUsername())
                             .addArgument(clientProfile.getTag())
-                            .addArgument(clientProfile.getProfilePicture());
+                            .addArgument(clientProfile.getProfilePicture())
+                            .addList(CHAT_MANAGER.getAllChatPartners(clientProfile));
+
 
                     sendReturn.accept(enc.format("ACC", "COMPLETE", encoderPacket));
                 } else {
@@ -43,8 +45,8 @@ public class AccountHandler implements Constant {
         } else if (enc.getOperation().equals("LOT")) {
             //Arguments given: 0 - tag
             final String tag = enc.getArgument(0);
-            if (USER_HANDLER.isUserOnline(tag, ip, port)) {
-                if (USER_HANDLER.removeOnlineUser(tag)) {
+            if (USER_MANAGER.isUserOnline(tag, ip, port)) {
+                if (USER_MANAGER.removeOnlineUser(tag)) {
                     //TODO: Strip old ip
                     sendReturn.accept(enc.format("ACC", "LOGGED OUT"));
                 } else {
@@ -55,7 +57,7 @@ public class AccountHandler implements Constant {
             }
         } else if (enc.getOperation().equals("PROFILE")) {
             //Given argument: 0 - Profile picture (base64)
-            final Optional<ClientProfile> optionalClientProfile = USER_HANDLER.getUser(ip, port);
+            final Optional<ClientProfile> optionalClientProfile = USER_MANAGER.getOnlineUser(ip, port);
             if (optionalClientProfile.isPresent()) {
                 final String base64ProfilePicture = enc.getArgument(0);
                 optionalClientProfile.get().setProfilePicture(base64ProfilePicture);
