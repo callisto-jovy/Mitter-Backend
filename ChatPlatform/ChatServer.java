@@ -21,7 +21,6 @@ public class ChatServer extends Server implements Constant {
     }
 
     public void processNewConnection(String pClientIP, int pClientPort) {
-        this.send(pClientIP, pClientPort, "Willkommen, hier kannst du chatten! Log dich ein oder Erstelle einen Account, um loszulegen");  // sendet Nachricht an Client
     }
 
     public void processMessage(String pClientIP, int pClientPort, String pMessage) {
@@ -35,7 +34,6 @@ public class ChatServer extends Server implements Constant {
 
     public void processClosingConnection(String pClientIP, int pClientPort) {
         this.send(pClientIP, pClientPort, pClientIP + " " + pClientPort + " auf Wiedersehen. ");
-        System.out.println(pClientIP + " " + pClientPort + " auf Wiedersehen. ");
         this.send(pClientIP, pClientPort, ENDE);
     }
 
@@ -47,7 +45,6 @@ public class ChatServer extends Server implements Constant {
                 break;
             case "CHT":
                 ChatHandler.handleChat(enc, ip, port, (t, m) -> {
-                    System.out.println(m);
                     //Return to sender
                     if (t == null) {
                         send(ip, port, m);

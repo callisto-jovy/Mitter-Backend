@@ -28,9 +28,8 @@ public class UserHandler implements Constant {
             if (optionalClientProfile.isPresent()) {
                 final ClientProfile clientProfile = optionalClientProfile.get();
                 final EncoderPacket encoderPacket = new EncoderPacket()
-                        .addArgument(userTag)
-                        .addArgument(clientProfile.getUsername())
-                        .addArgument(clientProfile.getProfilePicture());
+                        .addArgument(clientProfile.toJSON());
+
                 sendReturn.accept(enc.format("USR", "GET", encoderPacket));
             } else {
                 sendReturn.accept(enc.format(ErrorType.ACCOUNT_DOES_NOT_EXIST));

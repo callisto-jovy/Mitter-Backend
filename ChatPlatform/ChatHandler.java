@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -32,7 +31,7 @@ public class ChatHandler implements Constant {
                 } else {
                     //Open new chat
                     final Chat newChat = CHAT_MANAGER.addChat(receiverProfile, senderProfile);
-                   // CHAT_MANAGER.appendChat(newChat);
+                    // CHAT_MANAGER.appendChat(newChat);
                     newChat.appendMessage(senderProfile.getTag(), message);
                     //Send message to receiver after adding it to the chat.
                 }
@@ -62,15 +61,11 @@ public class ChatHandler implements Constant {
                     for (ChatMessage message : chat.messages) {
                         final EncoderPacket encoderPacket = new EncoderPacket()
                                 .addArgument(message.getMessage())
-                                .addArgument(message.getSender());
+                                .addArgument(message.getSender())
+                                .addArgument(chatPartnerTag);
 
                         receiverMessageConsumer.accept(null, enc.format("CHT", "REC", encoderPacket));
                     }
-                } else {
-                    //Return nothing, send an empty list
-                    final EncoderPacket encoderPacket = new EncoderPacket();
-                    encoderPacket.addArgument(new ArrayList<>());
-                    receiverMessageConsumer.accept(null, enc.format("CHT", "GET", encoderPacket));
                 }
             } else {
                 if (chatPartner.isEmpty())

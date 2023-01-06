@@ -1,30 +1,41 @@
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class EncoderUtil {
 
+    /*
     public static final String DELIMITER = ";";
     public static final String ESCAPED_DELIMITER = "\\;";
+
+     */
+
+    public static final String KEY_ID = "id";
+    public static final String KEY_OPERATION = "op";
+    public static final String KEY_STAMP = "stamp";
+    public static final String KEY_ARGUMENTS = "args";
+
+
     private final String input;
-    private final List<String> tokens;
+
+    private final JSONObject internalObject;
+    private final JSONArray arguments;
 
     public EncoderUtil(final String input) {
         this.input = input;
         if (!this.validateInput()) {
             throw new IllegalStateException("Invalid input string supplied");
         }
-        this.tokens = tokenize();
+        this.internalObject = new JSONObject(input);
+        this.arguments = internalObject.getJSONArray(KEY_ARGUMENTS);
     }
 
     private boolean validateInput() {
-        if (input == null || input.isEmpty()) {
-            return false;
-        } else if (input.startsWith(";")) {
-            return false;
-        } else return input.split(";").length >= 3;
-        //TODO: More checks
+        return input != null && !input.isEmpty();
+        //TODO: JSON valid?
     }
 
+    /*
+    Old approach, did not work out...
     private List<String> tokenize() {
         final List<String> tokens = new ArrayList<>();
         int lastSemicolon = 0;
@@ -46,39 +57,44 @@ public class EncoderUtil {
         return tokens;
     }
 
+
+     */
+
     public String getID() {
-        return tokens.get(0);
+        return internalObject.getString(KEY_ID);
     }
 
     public String getOperation() {
-        return tokens.get(1);
+        return internalObject.getString(KEY_OPERATION);
     }
 
     public String getStamp() {
-        return tokens.get(2);
+        return internalObject.getString(KEY_STAMP);
     }
 
-    public String getArgument(final int index) {
-        if ((index + 3) > tokens.size() - 1) {
-            return null;
-        }
-        return tokens.get(index + 3);
+    public <T> T getArgument(final int index) {
+        return (T) arguments.opt(index) ;
     }
 
+    private String formatBasic(final String packetID, final String operation, final EncoderPacket packet) {
+        return new JSONObject()
+                .put(KEY_ID, packetID)
+                .put(KEY_OPERATION, operation)
+                .put(KEY_STAMP, getStamp())
+                .put(KEY_ARGUMENTS, packet == null ? new JSONArray() : packet.toJSONArray())
+                .toString();
 
-    public List<String> getTokens() {
-        return this.tokens;
     }
 
     public String format(final String packetID, final String operation, final EncoderPacket packet) {
-        return packetID + ";" + operation + ";" + getStamp() + ";" + packet.toString();
+        return formatBasic(packetID, operation, packet);
     }
 
     public String format(final String packetID, final String operation) {
-        return packetID + ";" + operation + ";" + getStamp() + ";";
+        return formatBasic(packetID, operation, null);
     }
 
     public String format(ErrorType errorType) {
-        return "ERR;" + errorType.getCode() + ";" + getStamp() + ";";
+        return formatBasic("ERR", String.valueOf(errorType.getCode()), null);
     }
 }

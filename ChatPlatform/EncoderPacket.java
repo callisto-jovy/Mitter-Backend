@@ -1,56 +1,38 @@
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EncoderPacket {
-    private final List<String> arguments;
+    private final JSONArray arguments;
 
     public EncoderPacket() {
-        this.arguments = new ArrayList<>();
+        this.arguments = new JSONArray();
     }
 
     public EncoderPacket addArgument(final String string) {
-        this.arguments.add(sanitizeString(string));
+        this.arguments.put(string);
         return this;
     }
 
     public EncoderPacket addArgument(final String... strings) {
-        for (final String string : strings) {
-            this.arguments.add(sanitizeString(string));
+        for (String string : strings) {
+            arguments.put(string);
         }
         return this;
     }
 
-    public EncoderPacket addArgument(final List<String> strings) {
-        for (final String string : strings) {
-            this.arguments.add(sanitizeString(string));
-        }
+    public EncoderPacket addArgument(final JSONObject jsonObject) {
+        arguments.put(jsonObject);
         return this;
     }
 
     public EncoderPacket addList(final List<String> strings) {
-        //Format to list format
-        final StringBuilder builder = new StringBuilder("[");
-        for (int i = 0; i < strings.size(); i++) {
-            final String str = strings.get(i)
-                    .replace(",", "\\,")
-                    .replaceAll("(\\[|\\])", "\\\\$1");
-            builder.append(sanitizeString(str));
-            if (i < strings.size() - 1) {
-                builder.append(",");
-            }
-        }
-        builder.append("]");
-        arguments.add(builder.toString());
+        arguments.put(strings);
         return this;
     }
 
-    private String sanitizeString(final String string) {
-        return string.replace(EncoderUtil.DELIMITER, EncoderUtil.ESCAPED_DELIMITER);
-    }
-
-    @Override
-    public String toString() {
-        return String.join(EncoderUtil.DELIMITER, arguments);
+    public JSONArray toJSONArray() {
+        return arguments;
     }
 }

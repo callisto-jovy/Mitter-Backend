@@ -1,4 +1,4 @@
-import java.util.List;
+import org.json.JSONObject;
 
 public class ClientProfile implements Constant {
     private final String username, password, tag;
@@ -30,6 +30,15 @@ public class ClientProfile implements Constant {
         }
         return false;
     }
+
+
+    public JSONObject toJSON() {
+        return new JSONObject()
+                .put("tag", getTag())
+                .put("username", getUsername())
+                .put("pic", getProfilePicture());
+    }
+
     public static boolean checkUserPassRule(String usernameOrPassword) {
         return !usernameOrPassword.contains(" ") && usernameOrPassword.length() <= 10 && usernameOrPassword != "";
     }

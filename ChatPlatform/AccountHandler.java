@@ -8,8 +8,12 @@ public class AccountHandler implements Constant {
         if (enc.getOperation().equals("CRT")) {
             //Create Login (Arguments given: 0 - Username, 1 - tag, 2 - password)
             final String tag = enc.getArgument(1);
-            final String username = enc.getArgument(1);
+            final String username = enc.getArgument(0);
             final String password = enc.getArgument(2);
+
+            System.out.println(tag);
+            System.out.println(username);
+            System.out.println(password);
 
             if (USER_MANAGER.doesUserExist(tag)) {
                 sendReturn.accept(enc.format(ErrorType.ACCOUNT_TAG_ALREADY_TAKEN));
@@ -26,14 +30,12 @@ public class AccountHandler implements Constant {
             if (optionalClientProfile.isPresent()) {
                 final String password = enc.getArgument(1);
                 final ClientProfile clientProfile = optionalClientProfile.get();
+
                 if (clientProfile.tryLogin(tag, password, ip, port)) {
                     USER_MANAGER.addOnlineUser(clientProfile);
                     final EncoderPacket encoderPacket = new EncoderPacket()
-                            .addArgument(clientProfile.getUsername())
-                            .addArgument(clientProfile.getTag())
-                            .addArgument(clientProfile.getProfilePicture())
+                            .addArgument(clientProfile.toJSON())
                             .addList(CHAT_MANAGER.getAllChatPartners(clientProfile));
-
 
                     sendReturn.accept(enc.format("ACC", "COMPLETE", encoderPacket));
                 } else {

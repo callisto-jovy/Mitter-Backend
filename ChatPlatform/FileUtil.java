@@ -1,6 +1,8 @@
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,10 +23,20 @@ public class FileUtil implements Constant {
 
     public static final File MAIN_DIR = new File("saved_state");
     public static final File USER_FILE = new File(MAIN_DIR, "users.txt");
-
     public static final File CHAT_DIR = new File(MAIN_DIR, "chats");
 
     public FileUtil() {
+        this.checkFileStructure();
+    }
+
+    public void saveSeverState() {
+        this.checkFileStructure();
+        //Save all signed-up users
+        this.saveUsers();
+        this.saveChats();
+    }
+
+    private void checkFileStructure() {
         if (!MAIN_DIR.exists()) {
             MAIN_DIR.mkdir();
         }
@@ -41,11 +53,6 @@ public class FileUtil implements Constant {
         }
     }
 
-    public void saveSeverState() {
-        //Save all signed-up users
-        this.saveUsers();
-        this.saveChats();
-    }
 
     public void loadServerState() {
         this.loadUsers();
@@ -57,13 +64,12 @@ public class FileUtil implements Constant {
              "Tag" "Username" "Password" "Profile-Picture" \n
         Every new line is another user.
         */
-        try (final BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(USER_FILE))) {
 
-            for (final ClientProfile profile : USER_MANAGER.getProfiles()) {
-                final String formatted = formatUser(profile);
-                bufferedWriter.write(formatted);
-                bufferedWriter.newLine();
-            }
+        final JSONArray usersArray = new JSONArray();
+        USER_MANAGER.getProfiles().forEach(clientProfile -> usersArray.put(encodeUser(clientProfile)));
+
+        try (final BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(USER_FILE))) {
+            bufferedWriter.write(usersArray.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -82,23 +88,29 @@ public class FileUtil implements Constant {
             final String fileName = UUID.randomUUID().toString();
             final File chatFile = new File(CHAT_DIR, fileName);
 
+            final JSONArray messageArray = new JSONArray();
+
+            final JSONObject containerObject = new JSONObject()
+                    .put("metadata", new JSONArray()
+                            .put(allChat.getUser1())
+                            .put(allChat.getUser2()));
+
+            containerObject.put("msgs", messageArray);
+
             try (final BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(chatFile))) {
                 if (!chatFile.exists()) {
                     chatFile.createNewFile();
                 }
-                //"Metadata"
-                bufferedWriter.write(allChat.getUser1());
-                bufferedWriter.newLine();
-                bufferedWriter.write(allChat.getUser2());
-                bufferedWriter.newLine();
-                bufferedWriter.newLine();
 
                 for (final ChatMessage message : allChat.messages) {
-                    if (!message.getMessage().isEmpty()) {
-                        bufferedWriter.write(formatMessage(message));
-                        bufferedWriter.newLine();
-                    }
+                    final JSONObject messageObject = new JSONObject()
+                            .put("msg", message.getMessage())
+                            .put("sender", message.getSender());
+
+                    messageArray.put(messageObject);
                 }
+
+                bufferedWriter.write(containerObject.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -107,11 +119,15 @@ public class FileUtil implements Constant {
 
     private void loadUsers() {
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(USER_FILE)))) {
-            bufferedReader.lines().forEach(s -> {
-                final ClientProfile clientProfile = decodeUser(s);
+            final String line = bufferedReader.lines().collect(Collectors.joining());
+            final JSONArray usersArray = new JSONArray(line);
+
+            for (int i = 0; i < usersArray.length(); i++) {
+                final JSONObject userObject = usersArray.getJSONObject(i);
+                final ClientProfile clientProfile = decodeUser(userObject);
                 USER_MANAGER.addNewUser(clientProfile);
                 System.out.println("User registered: " + clientProfile.getTag());
-            });
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -122,13 +138,19 @@ public class FileUtil implements Constant {
         if (CHAT_DIR.listFiles() != null) {
             for (final File file : Objects.requireNonNull(CHAT_DIR.listFiles())) {
                 try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
-                    final String[] lines = bufferedReader.lines().toArray(String[]::new);
+                    final String line = bufferedReader.lines().collect(Collectors.joining());
+                    final JSONObject containerObject = new JSONObject(line);
+                    final JSONArray metadata = containerObject.getJSONArray("metadata");
+                    final JSONArray messages = containerObject.getJSONArray("msgs");
 
-                    final Chat chat = new Chat(lines[0], lines[1]);
+                    final Chat chat = new Chat(metadata.getString(0), metadata.getString(1));
 
-                    for (int i = 3; i < lines.length; i++) {
-                        final String line = lines[i];
-                        chat.appendMessage(decodeMessage(line));
+                    for (int i = 0; i < messages.length(); i++) {
+                        final JSONObject messageObject = messages.getJSONObject(i);
+                        final String sender = messageObject.getString("sender");
+                        final String message = messageObject.getString("msg");
+
+                        chat.appendMessage(new ChatMessage(sender, message));
                     }
                     CHAT_MANAGER.appendChat(chat);
                     System.out.printf("Chat loaded with %d messages%n", chat.getLength());
@@ -139,42 +161,21 @@ public class FileUtil implements Constant {
         }
     }
 
-    private ClientProfile decodeUser(final String in) {
-        /*
-        0 - tag
-        1 - username
-        2 - password
-        3 - profile picture
-         */
-        final String[] split = in.split("(?<!\\\\)\"");
-        final String tag = split[0].replace("\\\"", "\"");
-        final String username = split[1].replace("\\\"", "\"");
-        final String password = split[2].replace("\\\"", "\"");
-        final String profile = split.length >= 4 ? split[3].replace("\\\"", "\"") : "";
-
-        return new ClientProfile(username, password, tag, profile);
+    private ClientProfile decodeUser(final JSONObject in) {
+        return new ClientProfile(
+                in.getString("username"),
+                in.getString("pass"),
+                in.getString("tag"),
+                in.getString("pic")
+        );
     }
 
-    private String formatMessage(final ChatMessage message) {
-        return message.getSender().replaceAll(":", "\\$1") + ":" + message.getMessage();
-    }
 
-    private ChatMessage decodeMessage(final String in) {
-        final String[] strings = in.split("(?<!\\\\):");
-        final String tag = strings[0].replace("\"", "");
-        final String msg = Arrays.stream(strings, 1, strings.length).collect(Collectors.joining());
-        return new ChatMessage(tag, msg);
+    private JSONObject encodeUser(final ClientProfile profile) {
+        return new JSONObject()
+                .put("tag", profile.getTag())
+                .put("username", profile.getUsername())
+                .put("pass", profile.getPassword())
+                .put("pic", profile.getProfilePicture());
     }
-
-    private String formatUser(final ClientProfile clientProfile) {
-        return sanitizeProfileString(clientProfile.getTag()) + "\""
-                + sanitizeProfileString(clientProfile.getUsername()) + "\""
-                + sanitizeProfileString(clientProfile.getPassword()) + "\""
-                + sanitizeProfileString(clientProfile.getProfilePicture()) + "\"";
-    }
-
-    private String sanitizeProfileString(final String in) {
-        return in.replaceAll("\"", "\\\\\"");
-    }
-
 }
