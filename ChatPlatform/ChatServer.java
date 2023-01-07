@@ -38,6 +38,8 @@ public class ChatServer extends Server implements Constant {
     }
 
     void processSendID(String pString, String ip, int port) {
+        System.out.println(pString);
+
         final EncoderUtil enc = new EncoderUtil(pString);
         switch (enc.getID()) {
             case "ACC":

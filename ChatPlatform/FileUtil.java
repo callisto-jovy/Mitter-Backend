@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  * The user-file
  * The chat-files
  * <p>
- * - users.txt
+ * - users.json
  * - chats
  * - chat0.txt
  * - chat1.txt
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class FileUtil implements Constant {
 
     public static final File MAIN_DIR = new File("saved_state");
-    public static final File USER_FILE = new File(MAIN_DIR, "users.txt");
+    public static final File USER_FILE = new File(MAIN_DIR, "users.json");
     public static final File CHAT_DIR = new File(MAIN_DIR, "chats");
     public static final File PICTURES_DIR = new File(MAIN_DIR, "pictures");
 

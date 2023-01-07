@@ -15,12 +15,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public abstract class Server {
     private final NewConnectionHandler connectionHandler;
     private final SchoolList<ClientMessageHandler> messageHandlers;
 
-    public static final String TERMINATOR = "message::end";
+    public static final String TERMINATOR = "___\n";
 
     public Server(int pPort) {
         connectionHandler = new NewConnectionHandler(pPort);

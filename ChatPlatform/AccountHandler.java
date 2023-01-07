@@ -47,6 +47,7 @@ public class AccountHandler implements Constant {
         } else if (enc.getOperation().equals("LOT")) {
             //Arguments given: 0 - tag
             final String tag = enc.getArgument(0);
+
             if (USER_MANAGER.isUserOnline(tag, ip, port)) {
                 if (USER_MANAGER.removeOnlineUser(tag)) {
                     USER_MANAGER.getUser(tag).ifPresent(ClientProfile::logout);
