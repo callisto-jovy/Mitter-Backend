@@ -49,7 +49,7 @@ public class AccountHandler implements Constant {
             final String tag = enc.getArgument(0);
             if (USER_MANAGER.isUserOnline(tag, ip, port)) {
                 if (USER_MANAGER.removeOnlineUser(tag)) {
-                    //TODO: Strip old ip
+                    USER_MANAGER.getUser(tag).ifPresent(ClientProfile::logout);
                     sendReturn.accept(enc.format("ACC", "LOGGED OUT"));
                 } else {
                     sendReturn.accept(enc.format(ErrorType.ACCOUNT_NOT_LOGGED_OUT));
