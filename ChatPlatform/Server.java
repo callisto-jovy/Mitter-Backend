@@ -20,9 +20,11 @@ public abstract class Server {
     private final NewConnectionHandler connectionHandler;
     private final SchoolList<ClientMessageHandler> messageHandlers;
 
+    public static final String TERMINATOR = "message::end";
+
     public Server(int pPort) {
         connectionHandler = new NewConnectionHandler(pPort);
-        messageHandlers = new SchoolList<ClientMessageHandler>();
+        messageHandlers = new SchoolList<>();
     }
 
     public boolean isOpen() {
@@ -178,7 +180,7 @@ public abstract class Server {
         }
 
         public void run() {
-            String message = null;
+            String message;
             while (active) {
                 message = socketWrapper.receive();
                 if (message != null)
@@ -195,8 +197,9 @@ public abstract class Server {
         }
 
         public void send(String pMessage) {
-            if (active)
+            if (active) {
                 socketWrapper.send(pMessage);
+            }
         }
 
         public void close() {
@@ -236,13 +239,15 @@ public abstract class Server {
                     try {
                         return fromClient.readLine();
                     } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 return (null);
             }
 
             public void send(String pMessage) {
                 if (toClient != null) {
-                    toClient.println(pMessage);
+                    toClient.print(pMessage + TERMINATOR);
+                    toClient.flush();
                 }
             }
 

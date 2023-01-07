@@ -2,7 +2,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class FileUtil implements Constant {
     public static final File MAIN_DIR = new File("saved_state");
     public static final File USER_FILE = new File(MAIN_DIR, "users.txt");
     public static final File CHAT_DIR = new File(MAIN_DIR, "chats");
+    public static final File PICTURES_DIR = new File(MAIN_DIR, "pictures");
 
     public FileUtil() {
         this.checkFileStructure();
@@ -40,6 +43,15 @@ public class FileUtil implements Constant {
         if (!MAIN_DIR.exists()) {
             MAIN_DIR.mkdir();
         }
+
+        if (!CHAT_DIR.exists()) {
+            CHAT_DIR.mkdirs();
+        }
+
+        if (!PICTURES_DIR.exists()) {
+            PICTURES_DIR.mkdir();
+        }
+
         if (!USER_FILE.exists()) {
             try {
                 USER_FILE.createNewFile();
@@ -48,11 +60,7 @@ public class FileUtil implements Constant {
             }
         }
 
-        if (!CHAT_DIR.exists()) {
-            CHAT_DIR.mkdirs();
-        }
     }
-
 
     public void loadServerState() {
         this.loadUsers();
@@ -133,7 +141,6 @@ public class FileUtil implements Constant {
         }
     }
 
-
     private void loadChats() {
         if (CHAT_DIR.listFiles() != null) {
             for (final File file : Objects.requireNonNull(CHAT_DIR.listFiles())) {
@@ -178,4 +185,49 @@ public class FileUtil implements Constant {
                 .put("pass", profile.getPassword())
                 .put("pic", profile.getProfilePicture());
     }
+
+    /**
+     * Writes a given base64 string as a blob to the disk
+     *
+     * @param base64 the image in base64 encoding
+     * @return an id associated with the image (a generated uuid)
+     */
+
+    public static String writeImage(final String base64, final String previousId) {
+        //Delete old blob to save space
+        if (!previousId.equals("null")) {
+            final File oldBlob = new File(PICTURES_DIR, previousId);
+            if (oldBlob.exists())
+                oldBlob.delete();
+        }
+
+        final byte[] bytes = Base64.getDecoder().decode(base64.getBytes(StandardCharsets.UTF_8));
+        final String assignedId = UUID.randomUUID().toString();
+        final File outFile = new File(PICTURES_DIR, assignedId);
+
+        try (final FileOutputStream fos = new FileOutputStream(outFile)) {
+            fos.write(bytes);
+            fos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "null";
+        }
+        return assignedId;
+    }
+
+    public static String readImage(final String id) {
+        if (id.equals("null"))
+            return "null";
+
+        final File inFile = new File(PICTURES_DIR, id);
+        try (final FileInputStream fis = new FileInputStream(inFile)) {
+            final byte[] allBytes = fis.readAllBytes();
+            return Base64.getEncoder().encodeToString(allBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "null";
+        }
+    }
+
+
 }

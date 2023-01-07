@@ -31,20 +31,20 @@ public class ClientProfile implements Constant {
         return false;
     }
 
-
     public JSONObject toJSON() {
         return new JSONObject()
                 .put("tag", getTag())
                 .put("username", getUsername())
-                .put("pic", getProfilePicture());
+                .put("pic", getDecodedProfilePicture());
     }
 
-    public static boolean checkUserPassRule(String usernameOrPassword) {
-        return !usernameOrPassword.contains(" ") && usernameOrPassword.length() <= 10 && usernameOrPassword != "";
+    private String getDecodedProfilePicture() {
+        return FileUtil.readImage(getProfilePicture());
     }
 
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
+
+    public void setProfilePicture(String base64) {
+        this.profilePicture = FileUtil.writeImage(base64, getProfilePicture());
     }
 
     public String getProfilePicture() {
