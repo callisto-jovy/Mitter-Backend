@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ChatManager {
     private final List<Chat> allChats;
@@ -36,7 +37,7 @@ public class ChatManager {
                 .stream()
                 .filter(chat -> chat.containsUser(clientProfile))
                 .map(chat -> chat.getOtherUser(clientProfile))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public List<Chat> getAllChats() {

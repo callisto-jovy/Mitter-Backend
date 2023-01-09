@@ -42,9 +42,9 @@ public class ChatHandler implements Constant {
                 receiverMessageConsumer.accept(receiverProfile.getTag(), enc.format("CHT", "REC", encoderPacket));
                 receiverMessageConsumer.accept(null, enc.format("CHT", "SUCCESS"));
             } else {
-                if (receiverProfileOptional.isEmpty())
+                if (!receiverProfileOptional.isPresent())
                     receiverMessageConsumer.accept(null, enc.format(ErrorType.RECEIVER_NOT_ONLINE));
-                else if (senderProfileOptional.isEmpty())
+                else if (!senderProfileOptional.isPresent())
                     receiverMessageConsumer.accept(null, enc.format(ErrorType.ACCOUNT_NOT_LOGGED_IN));
             }
         } else if (enc.getOperation().equals("GET")) {
@@ -68,7 +68,7 @@ public class ChatHandler implements Constant {
                     }
                 }
             } else {
-                if (chatPartner.isEmpty())
+                if (!chatPartner.isPresent())
                     receiverMessageConsumer.accept(null, enc.format(ErrorType.RECEIVER_NOT_ONLINE));
                 else receiverMessageConsumer.accept(null, enc.format(ErrorType.ACCOUNT_NOT_LOGGED_IN));
             }

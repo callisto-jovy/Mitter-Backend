@@ -198,7 +198,7 @@ public class FileUtil implements Constant {
         if (!previousId.equals("null")) {
             final File oldBlob = new File(PICTURES_DIR, previousId);
             if (oldBlob.exists())
-                oldBlob.delete();
+                System.out.println("Deleting old blob: " + oldBlob.delete());
         }
 
         final byte[] bytes = Base64.getDecoder().decode(base64.getBytes(StandardCharsets.UTF_8));
@@ -220,10 +220,11 @@ public class FileUtil implements Constant {
             return "null";
 
         final File inFile = new File(PICTURES_DIR, id);
-        try (final FileInputStream fis = new FileInputStream(inFile)) {
-            final byte[] allBytes = fis.readAllBytes();
-            return Base64.getEncoder().encodeToString(allBytes);
-        } catch (IOException e) {
+        try {
+            final byte[] bytes = Files.readAllBytes(inFile.toPath());
+
+            return Base64.getEncoder().encodeToString(bytes);
+        } catch (final IOException e) {
             e.printStackTrace();
             return "null";
         }
