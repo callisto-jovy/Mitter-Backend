@@ -23,7 +23,6 @@ public class EncoderUtil {
     public EncoderUtil(final String input) {
         this.input = input;
         if (!this.validateInput()) {
-            System.out.println(input);
             throw new IllegalStateException("Invalid input string supplied");
         }
         this.internalObject = new JSONObject(input);

@@ -11,10 +11,6 @@ public class AccountHandler implements Constant {
             final String username = enc.getArgument(0);
             final String password = enc.getArgument(2);
 
-            System.out.println(tag);
-            System.out.println(username);
-            System.out.println(password);
-
             if (USER_MANAGER.doesUserExist(tag)) {
                 sendReturn.accept(enc.format(ErrorType.ACCOUNT_TAG_ALREADY_TAKEN));
                 return;
