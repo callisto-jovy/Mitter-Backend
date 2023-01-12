@@ -22,7 +22,7 @@ public class UserManager {
     }
 
     public List<String> getActiveUsers() {
-        return profiles.stream().map(ClientProfile::getTag).collect(Collectors.toList());
+        return onlineProfiles.stream().map(ClientProfile::getTag).collect(Collectors.toList());
     }
 
     public boolean addOnlineUser(final ClientProfile clientProfile) {
@@ -41,12 +41,6 @@ public class UserManager {
 
     public boolean isUserOnline(final String tag) {
         return onlineProfiles.stream().anyMatch(p -> p.getTag().equals(tag));
-    }
-
-    public boolean removeOnlineUser(final ClientProfile clientProfile) {
-        if (onlineProfiles.contains(clientProfile))
-            return onlineProfiles.remove(clientProfile);
-        return false;
     }
 
     public boolean removeOnlineUser(final String tag) {
@@ -69,6 +63,7 @@ public class UserManager {
         return onlineProfiles.stream().filter(p -> p.getCurrentIp().equals(ip) && p.getPortOnline() == port).findFirst();
     }
 
-
-
+    public List<ClientProfile> getOnlineProfiles() {
+        return onlineProfiles;
+    }
 }

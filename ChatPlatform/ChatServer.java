@@ -1,6 +1,5 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Optional;
 
 public class ChatServer extends Server implements Constant {
     private final String ENDE = "*bye*";
@@ -46,17 +45,20 @@ public class ChatServer extends Server implements Constant {
             case "CHT":
                 ChatHandler.handleChat(enc, ip, port, (t, m) -> {
                     //Return to sender
-                    if (t == null) {
-                        send(ip, port, m);
-                    } else {
-                        //Forward to receiver
-                        final Optional<ClientProfile> receiver = USER_MANAGER.getUser(t);
-                        receiver.ifPresent(p -> send(p.getCurrentIp(), p.getPortOnline(), m));
-                    }
+                    //Forward to receiver
+                    if (t == null) send(ip, port, m);
+                    else USER_MANAGER.getUser(t).ifPresent(p -> send(p.getCurrentIp(), p.getPortOnline(), m));
                 });
                 break;
             case "USR":
                 UserHandler.handleChat(enc, ip, port, s -> send(ip, port, s));
+                break;
+            case "PUB":
+                PublicChatHandler.handleChat(enc, ip, port, (aBoolean, s) -> {
+                    if (aBoolean) send(ip, port, s);
+                    else
+                        USER_MANAGER.getOnlineProfiles().forEach(clientProfile -> send(clientProfile.getCurrentIp(), clientProfile.getPortOnline(), s));
+                });
                 break;
             default:
                 System.out.println("*Server* corrupted Message: " + ip + ": " + pString);

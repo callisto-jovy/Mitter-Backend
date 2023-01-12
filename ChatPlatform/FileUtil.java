@@ -99,7 +99,7 @@ public class FileUtil implements Constant {
 
 
     private void loadPublicMessage() {
-        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(PUBLIC_CHAT_FILE)))) {
+        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Files.newInputStream(PUBLIC_CHAT_FILE.toPath())))) {
             final String line = bufferedReader.lines().collect(Collectors.joining());
             final JSONArray messagesArray = new JSONArray(line);
 
@@ -117,11 +117,6 @@ public class FileUtil implements Constant {
     }
 
     private void saveUsers() {
-        /*A user's profile in the file is formatted as follows:
-             "Tag" "Username" "Password" "Profile-Picture" \n
-        Every new line is another user.
-        */
-
         final JSONArray usersArray = new JSONArray();
         USER_MANAGER.getProfiles().forEach(clientProfile -> usersArray.put(encodeUser(clientProfile)));
 
@@ -175,7 +170,7 @@ public class FileUtil implements Constant {
     }
 
     private void loadUsers() {
-        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(USER_FILE)))) {
+        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Files.newInputStream(USER_FILE.toPath())))) {
             final String line = bufferedReader.lines().collect(Collectors.joining());
             final JSONArray usersArray = new JSONArray(line);
 
@@ -193,7 +188,7 @@ public class FileUtil implements Constant {
     private void loadChats() {
         if (CHAT_DIR.listFiles() != null) {
             for (final File file : Objects.requireNonNull(CHAT_DIR.listFiles())) {
-                try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+                try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath())))) {
                     final String line = bufferedReader.lines().collect(Collectors.joining());
                     final JSONObject containerObject = new JSONObject(line);
                     final JSONArray metadata = containerObject.getJSONArray("metadata");
