@@ -5,9 +5,11 @@ import java.util.stream.Collectors;
 
 public class ChatManager {
     private final List<Chat> allChats;
+    private final List<ChatMessage> publicChat;
 
     public ChatManager() {
         this.allChats = new ArrayList<>();
+        this.publicChat = new ArrayList<>();
     }
 
     public boolean addAllChat(Chat chat) {
@@ -42,5 +44,9 @@ public class ChatManager {
 
     public List<Chat> getAllChats() {
         return allChats;
+    }
+
+    public List<ChatMessage> getPublicChat() {
+        return publicChat;
     }
 }

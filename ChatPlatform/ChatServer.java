@@ -49,6 +49,7 @@ public class ChatServer extends Server implements Constant {
                     if (t == null) {
                         send(ip, port, m);
                     } else {
+                        //Forward to receiver
                         final Optional<ClientProfile> receiver = USER_MANAGER.getUser(t);
                         receiver.ifPresent(p -> send(p.getCurrentIp(), p.getPortOnline(), m));
                     }

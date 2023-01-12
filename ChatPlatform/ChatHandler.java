@@ -23,7 +23,6 @@ public class ChatHandler implements Constant {
 
                 final Optional<Chat> chat = CHAT_MANAGER.chatBetweenUsersExist(receiverProfile, senderProfile);
                 //Append to chat
-                System.out.println("Does chat exist?: " + CHAT_MANAGER.getAllChats().stream().anyMatch(chat1 -> chat1.containsUsers(receiverProfile, senderProfile)));
                 if (chat.isPresent()) {
                     System.out.println("Message appended!");
                     chat.get().appendMessage(senderProfile.getTag(), message);

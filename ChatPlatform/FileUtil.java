@@ -25,6 +25,8 @@ public class FileUtil implements Constant {
 
     public static final File MAIN_DIR = new File("saved_state");
     public static final File USER_FILE = new File(MAIN_DIR, "users.json");
+
+    public static final File PUBLIC_CHAT_FILE = new File(MAIN_DIR, "public.json");
     public static final File CHAT_DIR = new File(MAIN_DIR, "chats");
     public static final File PICTURES_DIR = new File(MAIN_DIR, "pictures");
 
@@ -37,6 +39,7 @@ public class FileUtil implements Constant {
         //Save all signed-up users
         this.saveUsers();
         this.saveChats();
+        this.savePublicMessages();
     }
 
     private void checkFileStructure() {
@@ -60,11 +63,57 @@ public class FileUtil implements Constant {
             }
         }
 
+        if (!PUBLIC_CHAT_FILE.exists()) {
+            try {
+                PUBLIC_CHAT_FILE.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
     public void loadServerState() {
         this.loadUsers();
         this.loadChats();
+        this.loadPublicMessage();
+    }
+
+    private void savePublicMessages() {
+        final JSONArray jsonArray = new JSONArray();
+
+        CHAT_MANAGER.getPublicChat().forEach(message -> {
+            final JSONObject messageObject = new JSONObject()
+                    .put("msg", message.getMessage())
+                    .put("sender", message.getSender());
+            jsonArray.put(messageObject);
+        });
+
+        try (final BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(PUBLIC_CHAT_FILE))) {
+            bufferedWriter.write(jsonArray.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+    private void loadPublicMessage() {
+        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(PUBLIC_CHAT_FILE)))) {
+            final String line = bufferedReader.lines().collect(Collectors.joining());
+            final JSONArray messagesArray = new JSONArray(line);
+
+            for (int i = 0; i < messagesArray.length(); i++) {
+                final JSONObject messageObject = messagesArray.getJSONObject(i);
+                final String sender = messageObject.getString("sender");
+                final String message = messageObject.getString("msg");
+
+                final ChatMessage chatMessage = new ChatMessage(sender, message);
+                CHAT_MANAGER.getPublicChat().add(chatMessage);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void saveUsers() {
